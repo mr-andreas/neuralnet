@@ -43,5 +43,7 @@ int main(int argc, char **argv) {
     gs.sweepers.push_back(s);
   }
   
+  g.gamestate->initGenAlg();
+  
   return sdlMainLoop(&g);
 }

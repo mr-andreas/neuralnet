@@ -6,6 +6,10 @@
 
 #include "SVector2D.h"
 
+const double CROSSOVER_RATE = 0.7;
+const double MUTATION_RATE = 0.1;
+
+
 Sweeper::Sweeper() {
   posx = 0;
   posy = 0;
@@ -15,6 +19,25 @@ Sweeper::Sweeper() {
 Gamestate::Gamestate(int boardWidth, int boardHeight) {
   this->boardWidth  = boardWidth;
   this->boardHeight = boardHeight;
+}
+
+void Gamestate::initGenAlg() {
+  //get the total number of weights used in the sweepers
+  //NN so we can initialise the GA
+  Sweeper s;
+  int m_NumWeightsInNN = s.brain.GetNumberOfWeights();
+
+  //initialize the Genetic Algorithm class
+  this->genAlg = new CGenAlg(
+    this->sweepers.size(), MUTATION_RATE, CROSSOVER_RATE, m_NumWeightsInNN
+  );
+
+  //Get the weights from the GA and insert into the sweepers brains
+  this->population = this->genAlg->GetChromos();
+}
+
+void Sweeper::reset() {
+  this->minesSweeped = 0;
 }
 
 SVector2D getClosestMine(Gamestate *gs, int x, int y) {
@@ -86,11 +109,13 @@ void checkHitsAndUpdateMines(Gamestate *gs) {
       SVector2D minePos(gs->mines[j].posx, gs->mines[j].posy); 
       SVector2D distToObject = sweeperPos - minePos;
       
-      if(Vec2DLength(distToObject) < 7) {
+      if(Vec2DLength(distToObject) < 10) {
         // Mine hit!
         gs->sweepers[i].minesSweeped++;
         gs->mines[j].posx = rand() % gs->boardWidth;
         gs->mines[j].posy = rand() % gs->boardHeight;
+        
+        gs->population[i].dFitness = gs->sweepers[i].minesSweeped;
         
         break;
       }
@@ -101,6 +126,29 @@ void checkHitsAndUpdateMines(Gamestate *gs) {
 void moveSweepers(Gamestate *gs) {
   for(std::vector<Sweeper>::iterator i = gs->sweepers.begin(); i != gs->sweepers.end(); i++) {
     moveSweeper(gs, *i);
+  }
+}
+
+void brainTransplant(Gamestate *gs) {
+  //update the stats to be used in our stat window
+//     m_vecAvFitness.push_back(m_pGA->AverageFitness());
+//     m_vecBestFitness.push_back(m_pGA->BestFitness());
+
+    //increment the generation counter
+//     ++m_iGenerations;
+
+    //reset cycles
+//     m_iTicks = 0;
+  
+  //run the GA to create a new population
+  gs->population = gs->genAlg->Epoch(gs->population);
+    
+  //insert the new (hopefully)improved brains back into the sweepers
+  //and reset their positions etc
+  for (int i=0; i<gs->sweepers.size(); i++) {
+    gs->sweepers[i].brain.PutWeights(gs->population[i].vecWeights);
+    
+    gs->sweepers[i].reset();
   }
 }
 

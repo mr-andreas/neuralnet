@@ -6,6 +6,7 @@
 
 const int FRAMES_PER_SECOND = 60;
 const int FRAMERATE_IN_MS = 1000/FRAMES_PER_SECOND;
+const int REPOPULATE_ON_FRAME = 60*FRAMES_PER_SECOND;
 const char* WINDOW_TITLE = "SDL Start";
 
 void plotSweeper(sdlgamestate_t *g, const Sweeper &sweeper) {
@@ -80,7 +81,9 @@ int sdlMainLoop(sdlgamestate_t *g) {
 
   SDL_Event event;
   bool gameRunning = true;
+  bool doPlot = true;
   unsigned int startTime, endTime;
+  unsigned int frameCounter = 0;
 
   while (gameRunning) {
     startTime = SDL_GetTicks();
@@ -89,18 +92,30 @@ int sdlMainLoop(sdlgamestate_t *g) {
       if (event.type == SDL_QUIT) {
         gameRunning = false;
       }
+      
+      if(event.type == SDL_KEYUP) {
+        doPlot = !doPlot;
+      }
     }
 
     SDL_FillRect(g->screen, NULL, SDL_MapRGB(g->screen->format, 255, 255, 255));
+    
+    if(frameCounter++ % REPOPULATE_ON_FRAME == 0) {
+      printf("Transplanting brains\n");
+      brainTransplant(g->gamestate);
+    }
+    
     doTurn(g->gamestate);
-    plotMines(g);
-    plotSweepers(g);
+    if(doPlot) {
+      plotMines(g);
+      plotSweepers(g);
     
-    SDL_Flip(g->screen);
+      SDL_Flip(g->screen);
+      
+      endTime = SDL_GetTicks();
     
-    endTime = SDL_GetTicks();
-    
-    SDL_Delay(FRAMERATE_IN_MS - (endTime - startTime));
+      SDL_Delay(FRAMERATE_IN_MS - (endTime - startTime));
+    }
   }
 
   SDL_FreeSurface(g->bitmaps.sweeper);

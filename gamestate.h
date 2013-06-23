@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "CNeuralNet.h"
+#include "CGenAlg.h"
 
 class Sweeper {
 public:
@@ -16,6 +17,9 @@ public:
   CNeuralNet brain;
   
   int minesSweeped;
+  
+  // Resets fitness
+  void reset();
 };
 
 typedef struct {
@@ -30,8 +34,14 @@ public:
   
   std::vector<Sweeper> sweepers;
   std::vector<Mine> mines;
+  
+  CGenAlg *genAlg;
+  vector<SGenome> population;
+  
+  void initGenAlg();
 };
 
 void doTurn(Gamestate *gs);
+void brainTransplant(Gamestate *gs);
 
 #endif
