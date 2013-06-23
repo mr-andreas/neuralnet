@@ -34,6 +34,8 @@ void plotSweepers(sdlgamestate_t *g) {
   const std::vector<Sweeper> &s(g->gamestate->sweepers);
   
   for(std::vector<Sweeper>::const_iterator i = s.begin(); i != s.end(); i++) {
+    if(i->dead) continue;
+    
     plotSweeper(g, *i);
   }
 }
@@ -60,6 +62,28 @@ void plotMines(const sdlgamestate_t *g) {
   }
 }
 
+void plotBullets(const sdlgamestate_t *g) {
+  const std::list<Bullet> &s(g->gamestate->bullets);
+  
+  for(std::list<Bullet>::const_iterator i = s.begin(); i != s.end(); i++) {
+    // Part of the bitmap that we want to draw
+    SDL_Rect source;
+    source.x = 0;
+    source.y = 0;
+    source.w = 3;
+    source.h = 3;
+
+    // Part of the screen we want to draw the sprite to
+    SDL_Rect destination;
+    destination.x = i->posx-1;
+    destination.y = i->posy-1;
+    destination.w = 3;
+    destination.h = 3;
+    
+    SDL_BlitSurface(g->bitmaps.bullet, &source, g->screen, &destination);
+  }
+}
+
 void init(sdlgamestate_t *g) {
   SDL_Init( SDL_INIT_VIDEO );
 
@@ -74,6 +98,7 @@ void init(sdlgamestate_t *g) {
     exit(1);
   }
   g->bitmaps.mine = IMG_Load("/home/ante/dev/neuralnet/res/mine.png");
+  g->bitmaps.bullet = IMG_Load("/home/ante/dev/neuralnet/res/bullet.png");
 }
 
 int sdlMainLoop(sdlgamestate_t *g) {
@@ -108,6 +133,7 @@ int sdlMainLoop(sdlgamestate_t *g) {
     doTurn(g->gamestate);
     if(doPlot) {
       plotMines(g);
+      plotBullets(g);
       plotSweepers(g);
     
       SDL_Flip(g->screen);

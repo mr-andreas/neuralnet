@@ -46,7 +46,7 @@ SNeuronLayer::SNeuronLayer(int NumNeurons,
 CNeuralNet::CNeuralNet() 
 {
 	m_NumInputs	          =	4;
-	m_NumOutputs		      =	2;
+	m_NumOutputs		      =	3;
 	m_NumHiddenLayers	    =	1;
 	m_NeuronsPerHiddenLyr =	6;
 

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <boost/concept_check.hpp>
 
 #include "SVector2D.h"
 
@@ -14,6 +15,7 @@ Sweeper::Sweeper() {
   posx = 0;
   posy = 0;
   minesSweeped = 0;
+  turnsLeftToAvilableShot = 0;
 }
 
 Gamestate::Gamestate(int boardWidth, int boardHeight) {
@@ -38,6 +40,8 @@ void Gamestate::initGenAlg() {
 
 void Sweeper::reset() {
   this->minesSweeped = 0;
+  this->dead = false;
+  this->turnsLeftToAvilableShot = 0;
 }
 
 SVector2D getClosestMine(Gamestate *gs, int x, int y) {
@@ -61,6 +65,8 @@ SVector2D getClosestMine(Gamestate *gs, int x, int y) {
 }
 
 void moveSweeper(Gamestate *gs, Sweeper &sweeper) {
+  static int i = 0;
+  
   vector<double> vals(4);
   SVector2D closestMine = getClosestMine(gs, sweeper.posx, sweeper.posy);
   vals[0] = closestMine.x;
@@ -73,6 +79,7 @@ void moveSweeper(Gamestate *gs, Sweeper &sweeper) {
   
   lTrack = output[0];
   rTrack = output[1];
+  bool shoot = output[2] > 0.5;
   
   double rotForce = lTrack - rTrack;
   if(rotForce < -0.3) rotForce = -0.3;
@@ -95,10 +102,41 @@ void moveSweeper(Gamestate *gs, Sweeper &sweeper) {
   if(sweeper.posx < 0) sweeper.posx += gs->boardWidth;
   if(sweeper.posy < 0) sweeper.posy += gs->boardHeight;
   
+  if(shoot && sweeper.turnsLeftToAvilableShot < 1) {
+    Bullet bullet;
+    bullet.posx = sweeper.posx;
+    bullet.posy = sweeper.posy;
+    bullet.rotation = sweeper.rotation;
+    bullet.shooter = &sweeper;
+    
+    gs->bullets.push_back(bullet);
+    
+    sweeper.turnsLeftToAvilableShot = 120;
+  }
+  
+  sweeper.turnsLeftToAvilableShot--;
+  
 //   printf(
 //     "Rotation: %f speed %f pos %d,%d lookat %f,%f degress %f\n", sweeper.rotation, speed, 
 //     (int)sweeper.posx, (int)sweeper.posy, vLookAtX, vLookAtY, sweeper.rotation*180.0/M_PI
 //   );
+}
+
+Sweeper *foundHitSweeper(Gamestate *gs, Sweeper *exclude, int posx, int posy) {
+  SVector2D pos(posx, posy);
+  
+  for(int i = 0; i < gs->sweepers.size(); i++) {
+    if(&gs->sweepers[i] == exclude) continue;
+    
+    SVector2D sweeperPos(gs->sweepers[i].posx, gs->sweepers[i].posy);
+    SVector2D distToObject = pos - sweeperPos;
+    
+    if(Vec2DLength(distToObject) < 10) {
+      return &gs->sweepers[i];
+    }
+  }
+  
+  return NULL;
 }
 
 void checkHitsAndUpdateMines(Gamestate *gs) {
@@ -125,7 +163,36 @@ void checkHitsAndUpdateMines(Gamestate *gs) {
 
 void moveSweepers(Gamestate *gs) {
   for(std::vector<Sweeper>::iterator i = gs->sweepers.begin(); i != gs->sweepers.end(); i++) {
+    if(i->dead) continue;
     moveSweeper(gs, *i);
+  }
+}
+
+void moveBullets(Gamestate *gs) {
+  const int speed = 4;
+  Sweeper *s;
+  
+  for(std::list<Bullet>::iterator i = gs->bullets.begin(); i != gs->bullets.end(); ) {
+    //update Look At 
+    double vLookAtX = cos(i->rotation);
+    double vLookAtY = -sin(i->rotation);
+
+    //update position
+    i->posx += vLookAtX * speed;
+    i->posy += vLookAtY * speed;
+    
+    // Check for hits
+    s = foundHitSweeper(gs, i->shooter, i->posx, i->posy);
+    if(s) {
+      s->dead = true;
+    }
+    
+    if(i->posx > gs->boardWidth || i->posx < 0 ||
+      i->posy > gs->boardHeight || i->posy < 0) {
+      i = gs->bullets.erase(i);
+    } else {
+      i++;
+    }
   }
 }
 
@@ -159,5 +226,6 @@ void brainTransplant(Gamestate *gs) {
 
 void doTurn(Gamestate* gs) {
   moveSweepers(gs);
+  moveBullets(gs);
   checkHitsAndUpdateMines(gs);
 }

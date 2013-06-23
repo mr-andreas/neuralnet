@@ -2,6 +2,7 @@
 #define _GAMESTATE_H
 
 #include <vector>
+#include <list>
 #include "CNeuralNet.h"
 #include "CGenAlg.h"
 
@@ -11,12 +12,14 @@ public:
   
   double posx, posy;
   
-  // Rotation, value between 0 and 1
+  // Rotation, counted in radians
   double rotation;
   
   CNeuralNet brain;
   
   int minesSweeped;
+  bool dead;
+  int turnsLeftToAvilableShot;
   
   // Resets fitness
   void reset();
@@ -26,6 +29,15 @@ typedef struct {
   int posx, posy;
 } Mine;
 
+typedef struct {
+  int posx, posy;
+  
+  // Rotation, counted in radians
+  double rotation;
+  
+  Sweeper *shooter;
+} Bullet;
+
 class Gamestate {
 public:
   Gamestate(int boardWidth, int boardHeight);
@@ -34,6 +46,7 @@ public:
   
   std::vector<Sweeper> sweepers;
   std::vector<Mine> mines;
+  std::list<Bullet> bullets;
   
   CGenAlg *genAlg;
   vector<SGenome> population;
