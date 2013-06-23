@@ -13,17 +13,17 @@ void plotSweeper(sdlgamestate_t *g, const Sweeper &sweeper) {
   SDL_Rect source;
   source.x = 0;
   source.y = 0;
-  source.w = 65;
-  source.h = 44;
+  source.w = 32;
+  source.h = 32;
 
   // Part of the screen we want to draw the sprite to
   SDL_Rect destination;
-  destination.x = sweeper.posx;
-  destination.y = sweeper.posy;
-  destination.w = 65;
-  destination.h = 44;
+  destination.x = sweeper.posx-16;
+  destination.y = sweeper.posy-16;
+  destination.w = 32;
+  destination.h = 32;
   
-  SDL_Surface *rotated = rotozoomSurface(g->bitmaps.sweeper, sweeper.rotation*180.0/M_PI-90.0, 1, 1);
+  SDL_Surface *rotated = rotozoomSurface(g->bitmaps.sweeper, sweeper.rotation*180.0/M_PI-90.0, 0.5, 1);
   SDL_BlitSurface(rotated, &source, g->screen, &destination);
   
   SDL_FreeSurface(rotated);
@@ -45,13 +45,13 @@ void plotMines(const sdlgamestate_t *g) {
     SDL_Rect source;
     source.x = 0;
     source.y = 0;
-    source.w = 20;
-    source.h = 20;
+    source.w = 5;
+    source.h = 5;
 
     // Part of the screen we want to draw the sprite to
     SDL_Rect destination;
-    destination.x = i->posx;
-    destination.y = i->posy;
+    destination.x = i->posx-2;
+    destination.y = i->posy-2;
     destination.w = 20;
     destination.h = 20;
     

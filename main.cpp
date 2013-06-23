@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
   srand(time(NULL));
   
   sdlgamestate_t g;
-  Gamestate gs(1024, 768);
+  Gamestate gs(640, 480);
   g.gamestate = &gs;
   
   for(int i = 0; i < 40; i++) {

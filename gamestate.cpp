@@ -5,7 +5,6 @@
 #include <math.h>
 
 #include "SVector2D.h"
-#include </var/www/mostphotos.com/daemons/lib/libev/libev-4.04/ev++.h>
 
 Sweeper::Sweeper() {
   posx = 0;
