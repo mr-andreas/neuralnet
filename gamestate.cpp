@@ -15,12 +15,19 @@ Gamestate::Gamestate(int boardWidth, int boardHeight) {
 }
 
 void moveSweeper(Gamestate *gs, Sweeper &sweeper) {
-  double lTrack, rTrack;
-  lTrack = rand() / ((double)RAND_MAX/2) - 1.0;
-  rTrack = rand() / ((double)RAND_MAX/2) - 1.0;
+  vector<double> vals(4);
+  vals[0] = 0.0;
+  vals[1] = 0.0;
+  vals[3] = 0.0;
+  vals[4] = 0.0;
+  vector<double> output = sweeper.brain.Update(vals);
   
-  lTrack = 1.0;
-  rTrack = 0.95;
+  double lTrack, rTrack;
+//   lTrack = rand() / ((double)RAND_MAX/2) - 1.0;
+//   rTrack = rand() / ((double)RAND_MAX/2) - 1.0;
+  
+  lTrack = output[0];
+  rTrack = output[1];
   
   double rotForce = lTrack - rTrack;
   if(rotForce < -0.3) rotForce = -0.3;

@@ -21,9 +21,13 @@ int oldmain(int argc, char **argv) {
 }
 
 int main(int argc, char **argv) {
+  srand(time(NULL));
+  
   sdlgamestate_t g;
   Gamestate gs(640, 480);
   g.gamestate = &gs;
+  
+  gs.sweepers.push_back(Sweeper());
   
   gs.sweepers.push_back(Sweeper());
   gs.sweepers[0].posx = 320;

@@ -2,6 +2,7 @@
 #define _GAMESTATE_H
 
 #include <vector>
+#include "CNeuralNet.h"
 
 class Sweeper {
 public:
@@ -11,6 +12,8 @@ public:
   
   // Rotation, value between 0 and 1
   double rotation;
+  
+  CNeuralNet brain;
 };
 
 class Gamestate {
