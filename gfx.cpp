@@ -81,7 +81,7 @@ int sdlMainLoop(sdlgamestate_t *g) {
 
   SDL_Event event;
   bool gameRunning = true;
-  bool doPlot = true;
+  int plotPause = 0;
   unsigned int startTime, endTime;
   unsigned int frameCounter = 0;
 
@@ -94,7 +94,19 @@ int sdlMainLoop(sdlgamestate_t *g) {
       }
       
       if(event.type == SDL_KEYUP) {
-        doPlot = !doPlot;
+        if(event.key.keysym.sym == 'q') {
+          gameRunning = false;
+        }
+        
+        if(plotPause) {
+          plotPause = 0;
+        } else {
+          if(event.key.keysym.sym == 'n') {
+            plotPause = 1;
+          } else {
+            plotPause = 2;
+          }
+        }
       }
     }
 
@@ -103,10 +115,12 @@ int sdlMainLoop(sdlgamestate_t *g) {
     if(frameCounter++ % REPOPULATE_ON_FRAME == 0) {
       printf("Transplanting brains\n");
       brainTransplant(g->gamestate);
+      if(plotPause == 1)
+        plotPause = 0;
     }
     
     doTurn(g->gamestate);
-    if(doPlot) {
+    if(!plotPause) {
       plotMines(g);
       plotSweepers(g);
     
