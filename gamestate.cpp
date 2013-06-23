@@ -64,15 +64,40 @@ SVector2D getClosestMine(Gamestate *gs, int x, int y) {
   return vClosestObject;
 }
 
+SVector2D getClosestSweeper(Gamestate *gs, int x, int y) {
+  double closest_so_far = 99999;
+
+  SVector2D pos(x, y);
+  SVector2D vClosestObject(0, 0);
+
+  //cycle through mines to find closest
+  for (int i=0; i<gs->sweepers.size(); i++) {
+    SVector2D sweeper(gs->sweepers[i].posx, gs->sweepers[i].posy);
+    double len_to_object = Vec2DLength(sweeper - pos);
+
+    if (len_to_object < closest_so_far) {
+      closest_so_far  = len_to_object;
+      vClosestObject  = pos - sweeper;
+    }
+  }
+
+  return vClosestObject;
+}
+
 void moveSweeper(Gamestate *gs, Sweeper &sweeper) {
   static int i = 0;
   
-  vector<double> vals(4);
+  vector<double> vals(8);
   SVector2D closestMine = getClosestMine(gs, sweeper.posx, sweeper.posy);
+  SVector2D closestSweeper = getClosestSweeper(gs, sweeper.posx, sweeper.posy);
+  SVector2D sweeperPos(sweeper.posx, sweeper.posy);
   vals[0] = closestMine.x;
   vals[1] = closestMine.y;
   vals[3] = cos(sweeper.rotation);
   vals[4] = -sin(sweeper.rotation);
+  vals[5] = closestSweeper.x;
+  vals[6] = closestSweeper.y;
+  vals[7] = Vec2DLength(closestSweeper - sweeperPos);
   vector<double> output = sweeper.brain.Update(vals);
   
   double lTrack, rTrack;
@@ -122,7 +147,7 @@ void moveSweeper(Gamestate *gs, Sweeper &sweeper) {
 //   );
 }
 
-Sweeper *foundHitSweeper(Gamestate *gs, Sweeper *exclude, int posx, int posy) {
+Sweeper *findHitSweeper(Gamestate *gs, Sweeper *exclude, int posx, int posy) {
   SVector2D pos(posx, posy);
   
   for(int i = 0; i < gs->sweepers.size(); i++) {
@@ -182,7 +207,7 @@ void moveBullets(Gamestate *gs) {
     i->posy += vLookAtY * speed;
     
     // Check for hits
-    s = foundHitSweeper(gs, i->shooter, i->posx, i->posy);
+    s = findHitSweeper(gs, i->shooter, i->posx, i->posy);
     if(s) {
       s->dead = true;
     }
