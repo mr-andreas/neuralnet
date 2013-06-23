@@ -12,6 +12,7 @@ typedef struct {
   SDL_Surface *screen;
   struct {
     SDL_Surface *sweeper;
+    SDL_Surface *mine;
   } bitmaps;
 } sdlgamestate_t;
 

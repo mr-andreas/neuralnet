@@ -37,6 +37,28 @@ void plotSweepers(sdlgamestate_t *g) {
   }
 }
 
+void plotMines(const sdlgamestate_t *g) {
+  const std::vector<Mine> &s(g->gamestate->mines);
+  
+  for(std::vector<Mine>::const_iterator i = s.begin(); i != s.end(); i++) {
+    // Part of the bitmap that we want to draw
+    SDL_Rect source;
+    source.x = 0;
+    source.y = 0;
+    source.w = 20;
+    source.h = 20;
+
+    // Part of the screen we want to draw the sprite to
+    SDL_Rect destination;
+    destination.x = i->posx;
+    destination.y = i->posy;
+    destination.w = 20;
+    destination.h = 20;
+    
+    SDL_BlitSurface(g->bitmaps.mine, &source, g->screen, &destination);
+  }
+}
+
 void init(sdlgamestate_t *g) {
   SDL_Init( SDL_INIT_VIDEO );
 
@@ -50,6 +72,7 @@ void init(sdlgamestate_t *g) {
     printf("No bitmap :(\n");
     exit(1);
   }
+  g->bitmaps.mine = IMG_Load("/home/ante/dev/neuralnet/res/mine.png");
 }
 
 int sdlMainLoop(sdlgamestate_t *g) {
@@ -70,6 +93,7 @@ int sdlMainLoop(sdlgamestate_t *g) {
 
     SDL_FillRect(g->screen, NULL, SDL_MapRGB(g->screen->format, 255, 255, 255));
     doTurn(g->gamestate);
+    plotMines(g);
     plotSweepers(g);
     
     SDL_Flip(g->screen);

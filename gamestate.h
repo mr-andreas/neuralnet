@@ -16,6 +16,10 @@ public:
   CNeuralNet brain;
 };
 
+typedef struct {
+  int posx, posy;
+} Mine;
+
 class Gamestate {
 public:
   Gamestate(int boardWidth, int boardHeight);
@@ -23,6 +27,7 @@ public:
   int boardWidth, boardHeight;
   
   std::vector<Sweeper> sweepers;
+  std::vector<Mine> mines;
 };
 
 void doTurn(Gamestate *gs);

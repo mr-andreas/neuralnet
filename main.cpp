@@ -24,14 +24,24 @@ int main(int argc, char **argv) {
   srand(time(NULL));
   
   sdlgamestate_t g;
-  Gamestate gs(640, 480);
+  Gamestate gs(1024, 768);
   g.gamestate = &gs;
   
-  gs.sweepers.push_back(Sweeper());
+  for(int i = 0; i < 40; i++) {
+    Mine m;
+    m.posx = rand()%gs.boardWidth;
+    m.posy = rand()%gs.boardHeight;
+    
+    gs.mines.push_back(m);
+  }
   
-  gs.sweepers.push_back(Sweeper());
-  gs.sweepers[0].posx = 320;
-  gs.sweepers[0].posy = 240;
+  for(int i = 0; i < 20; i++) {
+    Sweeper s;
+    s.posx = rand()%gs.boardWidth;
+    s.posy = rand()%gs.boardHeight;
+    
+    gs.sweepers.push_back(s);
+  }
   
   return sdlMainLoop(&g);
 }
