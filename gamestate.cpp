@@ -5,10 +5,12 @@
 #include <math.h>
 
 #include "SVector2D.h"
+#include </var/www/mostphotos.com/daemons/lib/libev/libev-4.04/ev++.h>
 
 Sweeper::Sweeper() {
-  int posx = 0;
-  int posy = 0;
+  posx = 0;
+  posy = 0;
+  minesSweeped = 0;
 }
 
 Gamestate::Gamestate(int boardWidth, int boardHeight) {
@@ -77,6 +79,26 @@ void moveSweeper(Gamestate *gs, Sweeper &sweeper) {
 //   );
 }
 
+void checkHitsAndUpdateMines(Gamestate *gs) {
+  for(int i = 0; i < gs->sweepers.size(); i++) {
+    SVector2D sweeperPos(gs->sweepers[i].posx, gs->sweepers[i].posy);
+    
+    for(int j = 0; j < gs->mines.size(); j++) {
+      SVector2D minePos(gs->mines[j].posx, gs->mines[j].posy); 
+      SVector2D distToObject = sweeperPos - minePos;
+      
+      if(Vec2DLength(distToObject) < 7) {
+        // Mine hit!
+        gs->sweepers[i].minesSweeped++;
+        gs->mines[j].posx = rand() % gs->boardWidth;
+        gs->mines[j].posy = rand() % gs->boardHeight;
+        
+        break;
+      }
+    }
+  }
+}
+
 void moveSweepers(Gamestate *gs) {
   for(std::vector<Sweeper>::iterator i = gs->sweepers.begin(); i != gs->sweepers.end(); i++) {
     moveSweeper(gs, *i);
@@ -85,4 +107,5 @@ void moveSweepers(Gamestate *gs) {
 
 void doTurn(Gamestate* gs) {
   moveSweepers(gs);
+  checkHitsAndUpdateMines(gs);
 }

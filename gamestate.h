@@ -14,6 +14,8 @@ public:
   double rotation;
   
   CNeuralNet brain;
+  
+  int minesSweeped;
 };
 
 typedef struct {
