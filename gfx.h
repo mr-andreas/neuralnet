@@ -13,8 +13,6 @@ typedef struct {
   struct {
     SDL_Surface *sweeper;
   } bitmaps;
-  
-  
 } sdlgamestate_t;
 
 int sdlMainLoop(sdlgamestate_t *g);

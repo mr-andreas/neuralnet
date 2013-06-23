@@ -1,5 +1,11 @@
 #include "gfx.h"
 
+#include <SDL/SDL_rotozoom.h>
+#include <SDL/SDL_timer.h>
+#include <math.h>
+
+const int FRAMES_PER_SECOND = 60;
+const int FRAMERATE_IN_MS = 1000/FRAMES_PER_SECOND;
 const char* WINDOW_TITLE = "SDL Start";
 
 void plotSweeper(sdlgamestate_t *g, const Sweeper &sweeper) {
@@ -17,7 +23,10 @@ void plotSweeper(sdlgamestate_t *g, const Sweeper &sweeper) {
   destination.w = 65;
   destination.h = 44;
   
-  SDL_BlitSurface(g->bitmaps.sweeper, &source, g->screen, &destination);
+  SDL_Surface *rotated = rotozoomSurface(g->bitmaps.sweeper, sweeper.rotation*180.0/M_PI-90.0, 1, 1);
+  SDL_BlitSurface(rotated, &source, g->screen, &destination);
+  
+  SDL_FreeSurface(rotated);
 }
 
 void plotSweepers(sdlgamestate_t *g) {
@@ -48,17 +57,26 @@ int sdlMainLoop(sdlgamestate_t *g) {
 
   SDL_Event event;
   bool gameRunning = true;
+  unsigned int startTime, endTime;
 
   while (gameRunning) {
+    startTime = SDL_GetTicks();
+    
     if (SDL_PollEvent(&event)) { 
       if (event.type == SDL_QUIT) {
         gameRunning = false;
       }
     }
 
+    SDL_FillRect(g->screen, NULL, SDL_MapRGB(g->screen->format, 255, 255, 255));
+    doTurn(g->gamestate);
     plotSweepers(g);
     
     SDL_Flip(g->screen);
+    
+    endTime = SDL_GetTicks();
+    
+    SDL_Delay(FRAMERATE_IN_MS - (endTime - startTime));
   }
 
   SDL_FreeSurface(g->bitmaps.sweeper);

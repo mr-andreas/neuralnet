@@ -26,6 +26,8 @@ int main(int argc, char **argv) {
   g.gamestate = &gs;
   
   gs.sweepers.push_back(Sweeper());
+  gs.sweepers[0].posx = 320;
+  gs.sweepers[0].posy = 240;
   
   return sdlMainLoop(&g);
 }

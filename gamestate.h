@@ -7,7 +7,10 @@ class Sweeper {
 public:
   Sweeper();
   
-  int posx, posy;
+  double posx, posy;
+  
+  // Rotation, value between 0 and 1
+  double rotation;
 };
 
 class Gamestate {
@@ -18,5 +21,7 @@ public:
   
   std::vector<Sweeper> sweepers;
 };
+
+void doTurn(Gamestate *gs);
 
 #endif
