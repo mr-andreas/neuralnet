@@ -130,6 +130,11 @@ void moveSweepers(Gamestate *gs) {
 }
 
 void brainTransplant(Gamestate *gs) {
+  static int generation = 0;
+  printf(
+    "Transplanting brains. Gen %d: Avg fitness %.2f, best %d\n", 
+    ++generation, gs->genAlg->AverageFitness(), (int)gs->genAlg->BestFitness()
+  );
   //update the stats to be used in our stat window
 //     m_vecAvFitness.push_back(m_pGA->AverageFitness());
 //     m_vecBestFitness.push_back(m_pGA->BestFitness());
