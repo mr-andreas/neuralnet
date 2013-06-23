@@ -16,6 +16,9 @@ Sweeper::Sweeper() {
   posy = 0;
   minesSweeped = 0;
   turnsLeftToAvilableShot = 0;
+  sweepersShot = 0;
+  
+  this->reset();
 }
 
 Gamestate::Gamestate(int boardWidth, int boardHeight) {
@@ -42,6 +45,8 @@ void Sweeper::reset() {
   this->minesSweeped = 0;
   this->dead = false;
   this->turnsLeftToAvilableShot = 0;
+  this->sweepersShot = 0;
+  this->shotsLeft = 4;
 }
 
 SVector2D getClosestMine(Gamestate *gs, int x, int y) {
@@ -104,7 +109,7 @@ void moveSweeper(Gamestate *gs, Sweeper &sweeper) {
   
   lTrack = output[0];
   rTrack = output[1];
-  bool shoot = output[2] > 0.5;
+  bool shoot = output[2] > 0.9;
   
   double rotForce = lTrack - rTrack;
   if(rotForce < -0.3) rotForce = -0.3;
@@ -127,7 +132,7 @@ void moveSweeper(Gamestate *gs, Sweeper &sweeper) {
   if(sweeper.posx < 0) sweeper.posx += gs->boardWidth;
   if(sweeper.posy < 0) sweeper.posy += gs->boardHeight;
   
-  if(shoot && sweeper.turnsLeftToAvilableShot < 1) {
+  if(shoot && sweeper.shotsLeft > 0) {
     Bullet bullet;
     bullet.posx = sweeper.posx;
     bullet.posy = sweeper.posy;
@@ -137,9 +142,10 @@ void moveSweeper(Gamestate *gs, Sweeper &sweeper) {
     gs->bullets.push_back(bullet);
     
     sweeper.turnsLeftToAvilableShot = 120;
+    sweeper.shotsLeft--;
   }
   
-  sweeper.turnsLeftToAvilableShot--;
+//   sweeper.turnsLeftToAvilableShot--;
   
 //   printf(
 //     "Rotation: %f speed %f pos %d,%d lookat %f,%f degress %f\n", sweeper.rotation, speed, 
@@ -178,7 +184,7 @@ void checkHitsAndUpdateMines(Gamestate *gs) {
         gs->mines[j].posx = rand() % gs->boardWidth;
         gs->mines[j].posy = rand() % gs->boardHeight;
         
-        gs->population[i].dFitness = gs->sweepers[i].minesSweeped;
+        gs->population[i].dFitness = gs->sweepers[i].minesSweeped + gs->sweepers[i].sweepersShot*10;
         
         break;
       }
@@ -209,6 +215,7 @@ void moveBullets(Gamestate *gs) {
     // Check for hits
     s = findHitSweeper(gs, i->shooter, i->posx, i->posy);
     if(s) {
+      i->shooter->sweepersShot++;
       s->dead = true;
     }
     

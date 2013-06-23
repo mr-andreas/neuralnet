@@ -20,6 +20,8 @@ public:
   int minesSweeped;
   bool dead;
   int turnsLeftToAvilableShot;
+  int sweepersShot;
+  int shotsLeft;
   
   // Resets fitness
   void reset();
