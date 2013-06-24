@@ -49,6 +49,14 @@ void Sweeper::reset() {
   this->shotsLeft = 1;
 }
 
+Mine::Mine() {
+  this->reset();
+}
+
+void Mine::reset() {
+  this->deleted = false;
+}
+
 SVector2D getClosestMine(Gamestate *gs, int x, int y) {
   double closest_so_far = 99999;
 
@@ -57,6 +65,8 @@ SVector2D getClosestMine(Gamestate *gs, int x, int y) {
 
   //cycle through mines to find closest
   for (int i=0; i<gs->mines.size(); i++) {
+    if(gs->mines[i].deleted) continue;
+    
     SVector2D mine(gs->mines[i].posx, gs->mines[i].posy);
     double len_to_object = Vec2DLength(mine - pos);
 
@@ -176,12 +186,15 @@ void checkHitsAndUpdateMines(Gamestate *gs) {
     SVector2D sweeperPos(gs->sweepers[i].posx, gs->sweepers[i].posy);
     
     for(int j = 0; j < gs->mines.size(); j++) {
+      if(gs->mines[i].deleted) continue;
+      
       SVector2D minePos(gs->mines[j].posx, gs->mines[j].posy); 
       SVector2D distToObject = sweeperPos - minePos;
       
       if(Vec2DLength(distToObject) < 10) {
         // Mine hit!
         gs->sweepers[i].minesSweeped++;
+        gs->mines[i].deleted = true;
         gs->mines[j].posx = rand() % gs->boardWidth;
         gs->mines[j].posy = rand() % gs->boardHeight;
         
@@ -258,6 +271,20 @@ void brainTransplant(Gamestate *gs) {
     gs->sweepers[i].brain.PutWeights(gs->population[i].vecWeights);
     
     gs->sweepers[i].reset();
+  }
+}
+
+void randomize(Gamestate *gs) {
+  for(int i = 0; i < gs->sweepers.size(); i++) {
+    gs->sweepers[i].posx = rand()%gs->boardWidth;
+    gs->sweepers[i].posy = rand()%gs->boardHeight;
+  }
+  
+  for(int i = 0; i < gs->mines.size(); i++) {
+    gs->mines[i].reset();
+    
+    gs->mines[i].posx = rand()%gs->boardWidth;
+    gs->mines[i].posy = rand()%gs->boardHeight;
   }
 }
 

@@ -27,9 +27,15 @@ public:
   void reset();
 };
 
-typedef struct {
+class Mine {
+public:
+  Mine();
+  
   int posx, posy;
-} Mine;
+  bool deleted;
+  
+  void reset();
+};
 
 typedef struct {
   int posx, posy;
@@ -57,6 +63,7 @@ public:
 };
 
 void doTurn(Gamestate *gs);
+void randomize(Gamestate *gs);
 void brainTransplant(Gamestate *gs);
 
 #endif

@@ -44,6 +44,8 @@ void plotMines(const sdlgamestate_t *g) {
   const std::vector<Mine> &s(g->gamestate->mines);
   
   for(std::vector<Mine>::const_iterator i = s.begin(); i != s.end(); i++) {
+    if(i->deleted) continue;
+    
     // Part of the bitmap that we want to draw
     SDL_Rect source;
     source.x = 0;
@@ -141,6 +143,7 @@ int sdlMainLoop(sdlgamestate_t *g) {
     if(frameCounter++ % REPOPULATE_ON_FRAME == 0) {
       printf("Transplanting brains\n");
       brainTransplant(g->gamestate);
+      randomize(g->gamestate);
       if(plotPause == 1)
         plotPause = 0;
     }
