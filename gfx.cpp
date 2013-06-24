@@ -84,6 +84,7 @@ int sdlMainLoop(sdlgamestate_t *g) {
   int plotPause = 0;
   unsigned int startTime, endTime;
   unsigned int frameCounter = 0;
+  int delay;
 
   while (gameRunning) {
     startTime = SDL_GetTicks();
@@ -128,7 +129,9 @@ int sdlMainLoop(sdlgamestate_t *g) {
       
       endTime = SDL_GetTicks();
     
-      SDL_Delay(FRAMERATE_IN_MS - (endTime - startTime));
+      delay = FRAMERATE_IN_MS - (endTime - startTime);
+      if(delay > 0)
+        SDL_Delay(delay);
     }
   }
 
