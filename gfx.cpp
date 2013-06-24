@@ -19,8 +19,8 @@ void plotSweeper(sdlgamestate_t *g, const Sweeper &sweeper) {
 
   // Part of the screen we want to draw the sprite to
   SDL_Rect destination;
-  destination.x = sweeper.posx-16;
-  destination.y = sweeper.posy-16;
+  destination.x = sweeper.posx-11;
+  destination.y = sweeper.posy-13;
   destination.w = 32;
   destination.h = 32;
   
@@ -53,8 +53,8 @@ void plotMines(const sdlgamestate_t *g) {
     SDL_Rect destination;
     destination.x = i->posx-2;
     destination.y = i->posy-2;
-    destination.w = 20;
-    destination.h = 20;
+    destination.w = 5;
+    destination.h = 5;
     
     SDL_BlitSurface(g->bitmaps.mine, &source, g->screen, &destination);
   }
