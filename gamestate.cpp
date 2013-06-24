@@ -46,7 +46,7 @@ void Sweeper::reset() {
   this->dead = false;
   this->turnsLeftToAvilableShot = 0;
   this->sweepersShot = 0;
-  this->shotsLeft = 4;
+  this->shotsLeft = 1;
 }
 
 SVector2D getClosestMine(Gamestate *gs, int x, int y) {
@@ -92,7 +92,7 @@ SVector2D getClosestSweeper(Gamestate *gs, int x, int y) {
 void moveSweeper(Gamestate *gs, Sweeper &sweeper) {
   static int i = 0;
   
-  vector<double> vals(8);
+  vector<double> vals(9);
   SVector2D closestMine = getClosestMine(gs, sweeper.posx, sweeper.posy);
   SVector2D closestSweeper = getClosestSweeper(gs, sweeper.posx, sweeper.posy);
   SVector2D sweeperPos(sweeper.posx, sweeper.posy);
@@ -103,13 +103,14 @@ void moveSweeper(Gamestate *gs, Sweeper &sweeper) {
   vals[5] = closestSweeper.x;
   vals[6] = closestSweeper.y;
   vals[7] = Vec2DLength(closestSweeper - sweeperPos);
+  vals[8] = sweeper.shotsLeft;
   vector<double> output = sweeper.brain.Update(vals);
   
   double lTrack, rTrack;
   
   lTrack = output[0];
   rTrack = output[1];
-  bool shoot = output[2] > 0.9;
+  bool shoot = output[2] > 0.7;
   
   double rotForce = lTrack - rTrack;
   if(rotForce < -0.3) rotForce = -0.3;
@@ -184,7 +185,10 @@ void checkHitsAndUpdateMines(Gamestate *gs) {
         gs->mines[j].posx = rand() % gs->boardWidth;
         gs->mines[j].posy = rand() % gs->boardHeight;
         
-        gs->population[i].dFitness = gs->sweepers[i].minesSweeped + gs->sweepers[i].sweepersShot*10;
+        gs->population[i].dFitness = gs->sweepers[i].minesSweeped + gs->sweepers[i].sweepersShot*10 + gs->sweepers[i].shotsLeft * 2;
+        
+        if(gs->sweepers[i].minesSweeped % 10 == 0)
+          gs->sweepers[i].shotsLeft++;
         
         break;
       }
@@ -214,8 +218,9 @@ void moveBullets(Gamestate *gs) {
     
     // Check for hits
     s = findHitSweeper(gs, i->shooter, i->posx, i->posy);
-    if(s) {
+    if(s && !s->dead) {
       i->shooter->sweepersShot++;
+      i->shooter->shotsLeft += 2;
       s->dead = true;
     }
     

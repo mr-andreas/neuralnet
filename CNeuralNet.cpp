@@ -45,10 +45,10 @@ SNeuronLayer::SNeuronLayer(int NumNeurons,
 //-----------------------------------------------------------------------
 CNeuralNet::CNeuralNet() 
 {
-	m_NumInputs	          =	8;
+	m_NumInputs	          =	9;
 	m_NumOutputs		      =	3;
 	m_NumHiddenLayers	    =	1;
-	m_NeuronsPerHiddenLyr =	6;
+	m_NeuronsPerHiddenLyr =	14;
 
 	CreateNet();
 
